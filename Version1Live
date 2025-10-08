@@ -1,0 +1,1118 @@
+function smaht_mock_nhl_draft_shortcode() {
+    ob_start(); ?>
+
+    <style>
+      .mock-draft-wrapper {
+        max-width: 1200px;
+        margin: 0 auto;
+        font-family: Arial, sans-serif;
+      }
+      .mock-top-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 20px;
+      }
+      .mock-top-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        margin-top: 20px;
+      }
+      .mock-bottom-row {
+        display: flex;
+        flex-direction: row;
+        gap: 20px;
+        height: 600px;
+        margin-top: 30px;
+      }
+      .mock-player-bank-container, .mock-draft-board, .mock-column {
+        flex: 1;
+        overflow-y: auto;
+        background: #fff;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+      }
+      h1, h2 {
+        color: #003366;
+        text-align: center;
+      }
+      h3 {
+        margin-top: 20px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+      table th, table td {
+        border: 1px solid #ccc;
+        padding: 6px;
+        text-align: left;
+      }
+      .mock-player-bank li, #shortlistContainer li {
+        margin: 6px 0;
+        padding: 8px;
+        background: #e0e7ff;
+        border-radius: 4px;
+        font-size: 14px;
+        white-space: pre-wrap;
+        line-height: 1.4;
+        user-select: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 6px;
+      }
+      .mock-player-bank .unranked {
+        background: #f8d7da;
+        color: #b90000;
+      }
+      .mock-player-rank {
+        background: #003366;
+        color: #fff;
+        border-radius: 4px;
+        font-size: 12px;
+        padding: 1px 6px;
+        margin-left: 12px;
+        min-width: 30px;
+        text-align: center;
+        font-weight: bold;
+      }
+      .mock-slot {
+        display: inline-block;
+        min-width: 220px;
+        border: 1px dashed #ccc;
+        padding: 5px;
+        background: #f9f9f9;
+      }
+      .mock-draft-board ol {
+        padding-left: 20px;
+        font-size: 14px;
+      }
+      .mock-draft-board li {
+        margin: 6px 0;
+        background: #f4f4f4;
+        padding: 8px;
+        border-radius: 4px;
+      }
+      .big-timer {
+        position: fixed;
+        top: 16px;
+        right: 16px;
+        z-index: 1000;
+        background: #fff8e1;
+        border: 2px solid #cc0000;
+        border-radius: 10px;
+        padding: 8px 20px;
+        font-size: 1.5rem;
+        color: #cc0000;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+        font-weight: bold;
+        text-align: center;
+        animation: timerPulse 1s infinite alternate;
+        min-width: 100px;
+        user-select: none;
+        transition: font-size 0.2s, padding 0.2s;
+      }
+      @keyframes timerPulse {
+        0% { box-shadow: 0 4px 24px #cc000066;}
+        100% { box-shadow: 0 4px 32px #cc000099;}
+      }
+      .timer {
+        font-weight: bold;
+        color: #cc0000;
+        font-size: 18px;
+        text-align: center;
+        display: none;
+      }
+      .draft-actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      #shortlistContainer {
+        min-height: 100px;
+        border: 2px dashed #ccc;
+        padding: 10px;
+        border-radius: 6px;
+        background: #f9f9f9;
+        list-style: none;
+      }
+      #shortlistContainer li {
+        background: #e7f0ff;
+        margin: 6px 0;
+        padding: 6px 10px;
+        border-radius: 4px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .shortlist-delete {
+        background: #cc0000;
+        color: white;
+        border: none;
+        padding: 2px 6px;
+        font-size: 12px;
+        cursor: pointer;
+        border-radius: 3px;
+        margin-left: 10px;
+      }
+      #clearShortlist {
+        margin-top: 10px;
+        padding: 6px 12px;
+        font-size: 14px;
+        background: #444;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .download-buttons-hidden {
+        display: none !important;
+      }
+      .mock-rounds-select-row {
+        width: 100%;
+        margin: 10px 0 10px 0;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        justify-content: flex-start;
+      }
+      .mock-rounds-select-row label {
+        font-weight: bold;
+        margin-right: 6px;
+        font-size: 1.1em;
+      }
+      .mock-rounds-select-row select {
+        font-size: 1.1em;
+      }
+      .team-logo {
+        height: 22px;
+        vertical-align: middle;
+        margin-right: 6px;
+      }
+      #yourPickUpBox {
+        display: none;
+        position: fixed;
+        top: 76px;
+        right: 16px;
+        z-index: 1100;
+        min-width: 200px;
+        background: #e3ffe3;
+        border: 2px solid #19a119;
+        color: #186018;
+        border-radius: 8px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        text-align: center;
+        padding: 18px 20px 14px 20px;
+        box-shadow: 0 4px 18px rgba(25,161,25,0.10);
+        animation: pickPulse 1.4s infinite alternate;
+      }
+      @keyframes pickPulse {
+        0% { box-shadow: 0 4px 18px #19a11933;}
+        100% { box-shadow: 0 4px 24px #19a11999;}
+      }
+      .mock-draft-btn, .mock-queue-btn, .mock-move-bank-btn {
+        margin-left: 8px;
+        padding: 4px 8px;
+        background: #1ca51c;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: bold;
+        transition: background 0.1s;
+      }
+      .mock-queue-btn {
+        background: #003366;
+      }
+      .mock-queue-btn:hover {
+        background: #1653a9;
+      }
+      .mock-move-bank-btn {
+        background: #888;
+      }
+      .mock-move-bank-btn:hover {
+        background: #444;
+      }
+      .mock-draft-btn:hover {
+        background: #127b12;
+      }
+      #mockPlayerBank.on-clock, #shortlistContainer.on-clock {
+        box-shadow: 0 0 0 4px #ffd70066;
+        border-radius: 8px;
+        transition: box-shadow 0.2s;
+      }
+    </style>
+
+    <div class="mock-draft-wrapper">
+      <h1>Smaht Scouting – 2026 NHL Mock Draft</h1>
+      <div class="mock-top-controls">
+        <div>
+          <label for="draftMode">Draft Mode:</label>
+          <select id="draftMode">
+            <option value="all">Draft for All Teams</option>
+            <option value="single">Draft for One Team</option>
+          </select>
+        </div>
+        <div>
+          <label for="userTeam">Your Team:</label>
+          <select id="userTeam">
+            <option value="">Select Team</option>
+          </select>
+        </div>
+      </div>
+      <div class="mock-rounds-select-row">
+        <label for="numRoundsSelect">How many rounds do you want to complete?</label>
+        <select id="numRoundsSelect">
+          <option value="1">1 Round</option>
+          <option value="2">2 Rounds</option>
+          <option value="3">3 Rounds</option>
+          <option value="4">4 Rounds</option>
+          <option value="5">5 Rounds</option>
+          <option value="6">6 Rounds</option>
+          <option value="7" selected>7 Rounds</option>
+        </select>
+      </div>
+      <div class="mock-top-controls" style="margin-top:0;">
+        <div class="timer">Pick Time Left: <span id="timer">10</span>s</div>
+        <div>
+          <button id="startDraft">Start Draft</button>
+          <button id="stopDraft">Stop Draft</button>
+        </div>
+      </div>
+      <div id="bigTimer" class="big-timer">
+        Pick Time Left:<br>
+        <span id="bigTimerValue">10</span>s
+      </div>
+      <div id="yourPickUpBox"><span id="yourPickUpMessage">Your selection is up!</span></div>
+      <div class="mock-top-row">
+        <div class="mock-column mock-odds">
+          <h2>Lottery Odds</h2>
+          <table>
+            <thead><tr><th>Pick</th><th>Team</th><th>Odds</th></tr></thead>
+            <tbody id="mockOddsTable"></tbody>
+          </table>
+        </div>
+        <div class="mock-column mock-shortlist">
+          <h2>Queue / Shortlist</h2>
+          <ul id="shortlistContainer"></ul>
+          <button id="clearShortlist">Clear All</button>
+        </div>
+      </div>
+      <div class="mock-bottom-row">
+        <div class="mock-player-bank-container">
+          <h2>Player Bank</h2>
+          <input type="text" id="playerSearch" placeholder="Search players..." style="width: 100%; padding: 6px; margin-bottom: 10px; border-radius: 4px; border: 1px solid #ccc;" />
+          <ul id="mockPlayerBank" class="mock-player-bank"></ul>
+        </div>
+        <div class="mock-draft-board">
+          <h2>Mock Draft Board</h2>
+          <div id="mockDraftBoardFilterContainer"></div>
+          <div id="mockDraftBoardContainer">
+            <ol id="mockDraftBoard"></ol>
+          </div>
+          <div class="draft-actions download-buttons-hidden" id="downloadActions">
+            <button id="downloadCSV" type="button">Download CSV</button>
+            <button id="downloadPDF" type="button">Download PDF</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+    // NHL team logos (SVG, official NHL CDN)
+    const teamLogos = {
+      "Anaheim Ducks": "https://assets.nhle.com/logos/nhl/svg/ANA_light.svg",
+      "Utah Mammoth": "https://assets.nhle.com/logos/nhl/svg/UTA_light.svg",
+      "Boston Bruins": "https://assets.nhle.com/logos/nhl/svg/BOS_light.svg",
+      "Buffalo Sabres": "https://assets.nhle.com/logos/nhl/svg/BUF_light.svg",
+      "Calgary Flames": "https://assets.nhle.com/logos/nhl/svg/CGY_light.svg",
+      "Carolina Hurricanes": "https://assets.nhle.com/logos/nhl/svg/CAR_light.svg",
+      "Chicago Blackhawks": "https://assets.nhle.com/logos/nhl/svg/CHI_light.svg",
+      "Colorado Avalanche": "https://assets.nhle.com/logos/nhl/svg/COL_light.svg",
+      "Columbus Blue Jackets": "https://assets.nhle.com/logos/nhl/svg/CBJ_light.svg",
+      "Dallas Stars": "https://assets.nhle.com/logos/nhl/svg/DAL_light.svg",
+      "Detroit Red Wings": "https://assets.nhle.com/logos/nhl/svg/DET_light.svg",
+      "Edmonton Oilers": "https://assets.nhle.com/logos/nhl/svg/EDM_light.svg",
+      "Florida Panthers": "https://assets.nhle.com/logos/nhl/svg/FLA_light.svg",
+      "Los Angeles Kings": "https://assets.nhle.com/logos/nhl/svg/LAK_light.svg",
+      "Minnesota Wild": "https://assets.nhle.com/logos/nhl/svg/MIN_light.svg",
+      "Montreal Canadiens": "https://assets.nhle.com/logos/nhl/svg/MTL_light.svg",
+      "Nashville Predators": "https://assets.nhle.com/logos/nhl/svg/NSH_light.svg",
+      "New Jersey Devils": "https://assets.nhle.com/logos/nhl/svg/NJD_light.svg",
+      "New York Islanders": "https://assets.nhle.com/logos/nhl/svg/NYI_light.svg",
+      "New York Rangers": "https://assets.nhle.com/logos/nhl/svg/NYR_light.svg",
+      "Ottawa Senators": "https://assets.nhle.com/logos/nhl/svg/OTT_light.svg",
+      "Philadelphia Flyers": "https://assets.nhle.com/logos/nhl/svg/PHI_light.svg",
+      "Pittsburgh Penguins": "https://assets.nhle.com/logos/nhl/svg/PIT_light.svg",
+      "San Jose Sharks": "https://assets.nhle.com/logos/nhl/svg/SJS_light.svg",
+      "Seattle Kraken": "https://assets.nhle.com/logos/nhl/svg/SEA_light.svg",
+      "St. Louis Blues": "https://assets.nhle.com/logos/nhl/svg/STL_light.svg",
+      "Tampa Bay Lightning": "https://assets.nhle.com/logos/nhl/svg/TBL_light.svg",
+      "Toronto Maple Leafs": "https://assets.nhle.com/logos/nhl/svg/TOR_light.svg",
+      "Vancouver Canucks": "https://assets.nhle.com/logos/nhl/svg/VAN_light.svg",
+      "Vegas Golden Knights": "https://assets.nhle.com/logos/nhl/svg/VGK_light.svg",
+      "Washington Capitals": "https://assets.nhle.com/logos/nhl/svg/WSH_light.svg",
+      "Winnipeg Jets": "https://assets.nhle.com/logos/nhl/svg/WPG_light.svg"
+    };
+
+    const odds = [
+      { team: "Chicago Blackhawks", odds: "18.5%" },
+      { team: "San Jose Sharks", odds: "13.5%" },
+      { team: "Pittsburgh Penguins", odds: "11.5%" },
+      { team: "Anaheim Ducks", odds: "9.5%" },
+      { team: "Seattle Kraken", odds: "8.5%" },
+      { team: "Buffalo Sabres", odds: "7.5%" },
+      { team: "Boston Bruins", odds: "6.5%" },
+      { team: "Detroit Red Wings", odds: "6.0%" },
+      { team: "Calgary Flames", odds: "5.0%" },
+      { team: "Nashville Predators", odds: "3.5%" },
+      { team: "Columbus Blue Jackets", odds: "3.0%" },
+      { team: "Philadelphia Flyers", odds: "2.5%" },
+      { team: "New York Islanders", odds: "2.0%" },
+      { team: "Montreal Canadiens", odds: "1.5%" },
+      { team: "Vancouver Canucks", odds: "0.5%" },
+      { team: "St. Louis Blues", odds: "0.5%" }
+    ];
+    const allTeams = [
+      "Anaheim Ducks","Utah Mammoth","Boston Bruins","Buffalo Sabres","Calgary Flames","Carolina Hurricanes","Chicago Blackhawks","Colorado Avalanche","Columbus Blue Jackets","Dallas Stars","Detroit Red Wings","Edmonton Oilers","Florida Panthers","Los Angeles Kings","Minnesota Wild","Montreal Canadiens","Nashville Predators","New Jersey Devils","New York Islanders","New York Rangers","Ottawa Senators","Philadelphia Flyers","Pittsburgh Penguins","San Jose Sharks","Seattle Kraken","St. Louis Blues","Tampa Bay Lightning","Toronto Maple Leafs","Vancouver Canucks","Vegas Golden Knights","Washington Capitals","Winnipeg Jets"
+    ];
+    const tradedPicks = {
+      1: {
+        "Florida Panthers": "Chicago Blackhawks",
+        "Ottawa Senators": null,
+        "Vegas Golden Knights": "Calgary Flames"
+      },
+      2: {
+        "Buffalo Sabres": "Ottawa Senators",
+        "Carolina Hurricanes": "New York Rangers",
+        "Colorado Avalanche": "San Jose Sharks",
+        "Columbus Blue Jackets": "Montreal Canadiens",
+        "Minnesota Wild": "Nashville Predators",
+        "New York Islanders": "Chicago Blackhawks",
+        "New York Rangers": "Utah Mammoth",
+        "Ottawa Senators": "Utah Mammoth",
+        "St. Louis Blues": "Pittsburgh Penguins",
+        "Toronto Maple Leafs": "Chicago Blackhawks",
+        "Washington Capitals": "Florida Panthers"
+      },
+      3: {
+        "Carolina Hurricanes": "Utah Mammoth",
+        "Colorado Avalanche": "Columbus Blue Jackets",
+        "Dallas Stars": "Los Angeles Kings",
+        "Florida Panthers": "Ottawa Senators",
+        "San Jose Sharks": "Pittsburgh Penguins",
+        "Seattle Kraken": "Dallas Stars",
+        "Vancouver Canucks": "Calgary Flames"
+      },
+      4: {
+        "Anaheim Ducks": "Seattle Kraken",
+        "Carolina Hurricanes": "Colorado Avalanche",
+        "Chicago Blackhawks": "Florida Panthers",
+        "Dallas Stars": "New Jersey Devils",
+        "Columbus Blue Jackets": "Detroit Red Wings",
+        "Detroit Red Wings": "Anaheim Ducks",
+        "Edmonton Oilers": "Buffalo Sabres",
+        "Florida Panthers": "San Jose Sharks",
+        "New York Rangers": "Columbus Blue Jackets",
+        "Ottawa Senators": "Chicago Blackhawks",
+        "Philadelphia Flyers": "Anaheim Ducks",
+        "Pittsburgh Penguins": "Nashville Predators",
+        "Tampa Bay Lightning": "Boston Bruins",
+        "Toronto Maple Leafs": "Columbus Blue Jackets",
+        "Vegas Golden Knights": "Washington Capitals",
+        "Winnipeg Jets": "New Jersey Devils"
+      },
+      5: {
+        "Carolina Hurricanes": "Nashville Predators",
+        "Chicago Blackhawks": "Utah Mammoth",
+        "Edmonton Oilers": "Nashville Predators",
+        "Philadelphia Flyers": "Colorado Avalanche",
+        "Pittsburgh Penguins": "St. Louis Blues",
+        "San Jose Sharks": "Minnesota Wild",
+        "Seattle Kraken": "Tampa Bay Lightning"
+      },
+      6: {
+        "Boston Bruins": "Minnesota Wild",
+        "Chicago Blackhawks": "Buffalo Sabres",
+        "Colorado Avalanche": "Los Angeles Kings",
+        "Florida Panthers": "Chicago Blackhawks",
+        "Nashville Predators": "Pittsburgh Penguins",
+        "Pittsburgh Penguins": "Columbus Blue Jackets",
+        "San Jose Sharks": "Toronto Maple Leafs",
+        "Utah Mammoth": "Nashville Predators",
+        "Toronto Maple Leafs": "Carolina Hurricanes"
+      },
+      7: {
+        "Calgary Flames": "Detroit Red Wings",
+        "Carolina Hurricanes": "Montreal Canadiens",
+        "New York Rangers": "Colorado Avalanche",
+        "Ottawa Senators": "Colorado Avalanche",
+        "Vancouver Canucks": "New York Rangers",
+        "New Jersey Devils": "Seattle Kraken"
+      }
+    };
+
+    function buildDraftOrder(roundNum, roundsToShow = 7) {
+      const lotteryTeams = odds.map(entry => entry.team);
+      const remainingTeams = allTeams.filter(t => !lotteryTeams.includes(t));
+      let trades = tradedPicks[roundNum] || {};
+      let roundOrder = [];
+      for (let i = 0; i < lotteryTeams.length; i++) {
+        let original = lotteryTeams[i];
+        roundOrder.push(Object.hasOwn(trades, original) ? trades[original] : original);
+      }
+      let nonLotteryIdx = 0;
+      while (roundOrder.length < 32) {
+        let team = remainingTeams[nonLotteryIdx++];
+        roundOrder.push(Object.hasOwn(trades, team) ? trades[team] : team);
+      }
+      return roundOrder;
+    }
+
+    let numRoundsToSim = 7;
+
+    function getDraftOrderObject(roundsToShow = 7) {
+      let obj = {};
+      for (let r = 1; r <= roundsToShow; r++) {
+        obj[r] = buildDraftOrder(r, roundsToShow);
+      }
+      return obj;
+    }
+
+    // ---------- GLOBAL VARIABLES ----------
+    const userPickTime = 60;
+    const autoPickTime = 1;
+    let draftStarted = false, draftMode = "all", userTeam = "", timerInterval, timerBar, timeLeft = userPickTime, currentPick = 0;
+    let consolidatedPlayers = [];
+    let draftBoardPickTracker = [];
+    let draftComplete = false;
+    let draftOrder = getDraftOrderObject(numRoundsToSim);
+
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    let goalieDraftCount = {};
+
+    // Shortlist queue as array of player objects (by playerId)
+    let shortlistQueue = [];
+
+    function renderDraftBoard(container) {
+      container.innerHTML = "";
+      draftBoardPickTracker = [];
+      for (let round = 1; round <= numRoundsToSim; round++) {
+        const roundHeader = document.createElement("h3");
+        roundHeader.textContent = `Round ${round}`;
+        container.appendChild(roundHeader);
+        draftOrder[round].forEach((team, index) => {
+          const li = document.createElement("li");
+          li.setAttribute("data-team", team || "Forfeited");
+          let logoHtml = teamLogos[team] ? `<img src="${teamLogos[team]}" alt="${team} logo" class="team-logo">` : '';
+          li.innerHTML = team
+            ? `<strong>Pick ${index + 1} (${logoHtml}${team})</strong> – <span class="mock-slot"></span>`
+            : `<strong>Pick ${index + 1} (Forfeited)</strong> – <span class="mock-slot"></span>`;
+          container.appendChild(li);
+          draftBoardPickTracker.push({round, pick: index + 1, team});
+        });
+      }
+    }
+
+    function makePlayerLi(row, i, src = "bank") {
+      const li = document.createElement("li");
+      li.setAttribute("data-player-id", `player-${i}`);
+      li.setAttribute("data-rank", row['Consolidated Rank'] ? row['Consolidated Rank'] : '');
+      let text = `${row.Player} – ${row.Position} – ${row.Team}`;
+      let rankHtml;
+      if (row['Consolidated Rank'] && !isNaN(row['Consolidated Rank'])) {
+        rankHtml = `<span class="mock-player-rank">${row['Consolidated Rank']}</span>`;
+      } else {
+        rankHtml = `<span class="mock-player-rank unranked" title="Not Ranked">NR</span>`;
+        li.classList.add("unranked");
+      }
+      li.innerHTML = `<span class="mock-player-info">${text}${rankHtml}</span>`;
+
+      // Action buttons
+      let btnWrap = document.createElement("span");
+      btnWrap.style.display = "flex";
+      btnWrap.style.gap = "4px";
+
+      // Add to queue
+      if (src === "bank") {
+        let queueBtn = document.createElement("button");
+        queueBtn.textContent = "+ Queue";
+        queueBtn.className = "mock-queue-btn";
+        queueBtn.title = "Add to queue";
+        queueBtn.addEventListener("click", function (e) {
+          e.stopPropagation();
+          addToQueue(i);
+        });
+        btnWrap.appendChild(queueBtn);
+
+        // Draft from bank
+        let draftBtn = document.createElement("button");
+        draftBtn.textContent = "Draft";
+        draftBtn.className = "mock-draft-btn";
+        draftBtn.title = "Draft this player";
+        draftBtn.addEventListener("click", function(e) {
+          e.stopPropagation();
+          draftPlayerFromBank(li);
+        });
+        btnWrap.appendChild(draftBtn);
+      }
+
+      if (src === "queue") {
+        // Move back to bank
+        let moveBtn = document.createElement("button");
+        moveBtn.textContent = "↩ Bank";
+        moveBtn.className = "mock-move-bank-btn";
+        moveBtn.title = "Return to player bank";
+        moveBtn.addEventListener("click", function(e) {
+          e.stopPropagation();
+          movePlayerToBank(i);
+        });
+        btnWrap.appendChild(moveBtn);
+
+        // Draft from queue
+        let draftBtn = document.createElement("button");
+        draftBtn.textContent = "Draft";
+        draftBtn.className = "mock-draft-btn";
+        draftBtn.title = "Draft this player";
+        draftBtn.addEventListener("click", function(e) {
+          e.stopPropagation();
+          draftPlayerFromQueue(i);
+        });
+        btnWrap.appendChild(draftBtn);
+
+        // Remove from queue
+        let delBtn = document.createElement("button");
+        delBtn.textContent = "✕";
+        delBtn.className = "shortlist-delete";
+        delBtn.title = "Remove from queue";
+        delBtn.addEventListener("click", function(e) {
+          e.stopPropagation();
+          removeFromQueue(i);
+        });
+        btnWrap.appendChild(delBtn);
+      }
+
+      li.appendChild(btnWrap);
+      return li;
+    }
+
+    function populatePlayerBank() {
+      const playerBank = document.getElementById("mockPlayerBank");
+      playerBank.innerHTML = "";
+      consolidatedPlayers.forEach((row, i) => {
+        if (!row._drafted && !shortlistQueue.includes(i)) {
+          playerBank.appendChild(makePlayerLi(row, i, "bank"));
+        }
+      });
+    }
+
+    function populateShortlistQueue() {
+      const shortlistUL = document.getElementById("shortlistContainer");
+      shortlistUL.innerHTML = "";
+      shortlistQueue = shortlistQueue.filter(idx => !consolidatedPlayers[idx]._drafted);
+      shortlistQueue.forEach(idx => {
+        if (!consolidatedPlayers[idx]._drafted) {
+          shortlistUL.appendChild(makePlayerLi(consolidatedPlayers[idx], idx, "queue"));
+        }
+      });
+    }
+
+    function addToQueue(playerIdx) {
+      if (!shortlistQueue.includes(playerIdx) && !consolidatedPlayers[playerIdx]._drafted) {
+        shortlistQueue.push(playerIdx);
+        populateShortlistQueue();
+        populatePlayerBank();
+      }
+    }
+
+    function removeFromQueue(playerIdx) {
+      shortlistQueue = shortlistQueue.filter(idx => idx !== playerIdx);
+      populateShortlistQueue();
+      populatePlayerBank();
+    }
+
+    function movePlayerToBank(playerIdx) {
+      removeFromQueue(playerIdx);
+    }
+
+    function draftPlayerFromBank(li) {
+      let idx = parseInt(li.getAttribute("data-player-id").replace("player-", ""), 10);
+      performDraft(idx);
+    }
+
+    function draftPlayerFromQueue(idx) {
+      performDraft(idx);
+    }
+
+    function performDraft(playerIdx) {
+      const slots = document.querySelectorAll(".mock-slot");
+      let slot = null;
+      let idx = currentPick;
+      while (
+        slots[idx] &&
+        (!slots[idx].offsetParent ||
+          slots[idx].closest("li").getAttribute("data-team") === "Forfeited" ||
+          slots[idx].closest("li").getAttribute("data-team") === "null" ||
+          slots[idx].closest("li").getAttribute("data-team") === "undefined")
+      ) {
+        idx++;
+      }
+      if (!slots[idx]) return;
+      slot = slots[idx];
+      if (slot && !slot.textContent.trim()) {
+        const row = consolidatedPlayers[playerIdx];
+        let rankHtml;
+        if (row['Consolidated Rank'] && !isNaN(row['Consolidated Rank'])) {
+          rankHtml = `<span class="mock-player-rank">${row['Consolidated Rank']}</span>`;
+        } else {
+          rankHtml = `<span class="mock-player-rank unranked" title="Not Ranked">NR</span>`;
+        }
+        slot.innerHTML = `<span class="mock-player-info">${row.Player} – ${row.Position} – ${row.Team}${rankHtml}</span>`;
+        removeFromQueue(playerIdx); // If in shortlist, remove. (No effect if not.)
+        consolidatedPlayers[playerIdx]._drafted = true;
+        currentPick = idx + 1;
+        setPickTimer();
+        checkDraftCompletion();
+        populatePlayerBank();
+        populateShortlistQueue();
+      }
+    }
+
+    function setPickTimer() {
+      let isUserPick = false;
+      if (draftMode === "single" && userTeam) {
+        const {team} = draftBoardPickTracker[currentPick] || {};
+        if (team && team === userTeam) isUserPick = true;
+      }
+      if (draftMode === "all") {
+        timeLeft = userPickTime;
+      } else if (draftMode === "single" && userTeam) {
+        timeLeft = isUserPick ? userPickTime : autoPickTime;
+      } else {
+        timeLeft = userPickTime;
+      }
+      updateTimerDisplay();
+      updateYourPickUpBox(isUserPick, timeLeft);
+
+      // Show/hide draft buttons according to whose pick it is
+      document.querySelectorAll("#mockPlayerBank li").forEach(li => {
+        const btns = li.querySelectorAll('.mock-draft-btn');
+        btns.forEach(btn => {
+          if (!draftStarted) {
+            btn.style.display = "none";
+          } else if (draftMode === "all") {
+            btn.style.display = "";
+            btn.disabled = false;
+          } else if (draftMode === "single" && userTeam) {
+            if (isUserPick) {
+              btn.style.display = "";
+              btn.disabled = false;
+            } else {
+              btn.style.display = "none";
+            }
+          }
+        });
+      });
+      document.querySelectorAll("#shortlistContainer li").forEach(li => {
+        const btns = li.querySelectorAll('.mock-draft-btn');
+        btns.forEach(btn => {
+          if (!draftStarted) {
+            btn.style.display = "none";
+          } else if (draftMode === "all") {
+            btn.style.display = "";
+            btn.disabled = false;
+          } else if (draftMode === "single" && userTeam) {
+            if (isUserPick) {
+              btn.style.display = "";
+              btn.disabled = false;
+            } else {
+              btn.style.display = "none";
+            }
+          }
+        });
+      });
+
+      if (draftStarted) {
+        document.getElementById("mockPlayerBank").classList.add("on-clock");
+        document.getElementById("shortlistContainer").classList.add("on-clock");
+      } else {
+        document.getElementById("mockPlayerBank").classList.remove("on-clock");
+        document.getElementById("shortlistContainer").classList.remove("on-clock");
+      }
+    }
+
+    function updateYourPickUpBox(show, secsLeft) {
+      var box = document.getElementById("yourPickUpBox");
+      var msg = document.getElementById("yourPickUpMessage");
+      if (!box || !msg) return;
+      if (show) {
+        msg.textContent = "Your selection is up! (" + secsLeft + "s left)";
+        box.style.display = "block";
+      } else {
+        box.style.display = "none";
+      }
+    }
+
+    function updateTimerDisplay() {
+      document.getElementById("timer").textContent = timeLeft;
+      document.getElementById("bigTimerValue").textContent = timeLeft;
+    }
+
+function handleAutoPick() {
+  const slots = document.querySelectorAll(".mock-slot");
+  // Skip forfeited picks
+  while (
+    slots[currentPick] &&
+    (!slots[currentPick].offsetParent ||
+      slots[currentPick].closest("li").getAttribute("data-team") === "Forfeited" ||
+      slots[currentPick].closest("li").getAttribute("data-team") === "null" ||
+      slots[currentPick].closest("li").getAttribute("data-team") === "undefined")
+  ) {
+    currentPick++;
+  }
+  if (!slots[currentPick]) {
+    checkDraftCompletion();
+    return;
+  }
+  const pickInfo = draftBoardPickTracker[currentPick];
+
+  // FIXED: Only exclude drafted players (players in queue ARE eligible to be auto-drafted)
+  let availableIdxs = consolidatedPlayers
+    .map((row, i) => ({row, i}))
+    .filter(({row}) => !row._drafted);
+
+  if (availableIdxs.length === 0) {
+    checkDraftCompletion();
+    return;
+  }
+
+  let pickingTeam = pickInfo && pickInfo.team ? pickInfo.team : null;
+  if (pickingTeam && !goalieDraftCount[pickingTeam]) {
+    goalieDraftCount[pickingTeam] = 0;
+  }
+  const MAX_GOALIES_PER_TEAM = 2;
+  let pickLiIdx = null;
+
+  // 95% chance for #1 at 1OA
+  if (pickInfo && pickInfo.round === 1 && pickInfo.pick === 1) {
+    let bestObj = availableIdxs.find(({row}) => row['Consolidated Rank'] == "1");
+    if (bestObj) {
+      if (Math.random() < 0.95) {
+        const isGoalie = bestObj.row.Position == "G";
+        if (!isGoalie || (pickingTeam && goalieDraftCount[pickingTeam] < MAX_GOALIES_PER_TEAM)) {
+          pickLiIdx = bestObj.i;
+        }
+      }
+      if (pickLiIdx === null) {
+        let altChoices = availableIdxs.filter(({i}) => i !== bestObj.i);
+        shuffleArray(altChoices);
+        for (let obj of altChoices.slice(0, 2)) {
+          const isGoalie = obj.row.Position == "G";
+          if (!isGoalie || (pickingTeam && goalieDraftCount[pickingTeam] < MAX_GOALIES_PER_TEAM)) {
+            pickLiIdx = obj.i;
+            break;
+          }
+        }
+      }
+      if (pickLiIdx === null) {
+        let nonGoalie = availableIdxs.find(({row}) => row.Position != "G");
+        pickLiIdx = nonGoalie ? nonGoalie.i : bestObj.i;
+      }
+    } else {
+      pickLiIdx = availableIdxs[0].i;
+    }
+  }
+
+  // All other picks, always prefer ranked over unranked
+  if (pickLiIdx === null) {
+    let rankedIdxs = availableIdxs.filter(({row}) => row['Consolidated Rank'] && !isNaN(row['Consolidated Rank']));
+    let unrankedIdxs = availableIdxs.filter(({row}) => !row['Consolidated Rank'] || isNaN(row['Consolidated Rank']));
+
+    let candidateIdxs = [];
+    if (rankedIdxs.length > 0) {
+      candidateIdxs = rankedIdxs.slice(0, 4);
+      shuffleArray(candidateIdxs);
+    } else {
+      candidateIdxs = shuffleArray(unrankedIdxs).slice(0, 4);
+    }
+
+    for (let obj of candidateIdxs) {
+      const isGoalie = obj.row.Position == "G";
+      if (!isGoalie || (pickingTeam && goalieDraftCount[pickingTeam] < MAX_GOALIES_PER_TEAM)) {
+        pickLiIdx = obj.i;
+        break;
+      }
+    }
+
+    if (pickLiIdx === null && candidateIdxs.length) pickLiIdx = candidateIdxs[0].i;
+    if (pickLiIdx === null && availableIdxs.length) pickLiIdx = availableIdxs[0].i;
+  }
+
+  if (pickLiIdx !== null && pickingTeam) {
+    const isGoalie = consolidatedPlayers[pickLiIdx].Position == "G";
+    if (isGoalie) goalieDraftCount[pickingTeam]++;
+  }
+
+  performDraft(pickLiIdx);
+}
+
+    function checkDraftCompletion() {
+      const slots = document.querySelectorAll(".mock-slot");
+      let allFilled = true;
+      for (let i = 0; i < slots.length; i++) {
+        const li = slots[i].closest('li');
+        if (
+          !slots[i].textContent.trim() &&
+          li.getAttribute('data-team') !== "Forfeited" &&
+          li.getAttribute('data-team') !== "null" &&
+          li.getAttribute('data-team') !== "undefined"
+        ) {
+          allFilled = false;
+          break;
+        }
+      }
+      if (allFilled && !draftComplete) {
+        draftComplete = true;
+        showDownloadButtons(true);
+        clearInterval(timerInterval);
+        draftStarted = false;
+        document.getElementById("bigTimer").style.display = "none";
+        updateYourPickUpBox(false);
+      }
+    }
+
+    function showDownloadButtons(show) {
+      const dl = document.getElementById("downloadActions");
+      if (show) {
+        dl.classList.remove("download-buttons-hidden");
+      } else {
+        dl.classList.add("download-buttons-hidden");
+      }
+    }
+
+    function getDraftedPlayers(team = "") {
+      const draftBoard = document.getElementById("mockDraftBoard");
+      let picks = [];
+      let round = 0, pick = 0;
+      Array.from(draftBoard.children).forEach(el => {
+        if (el.tagName === "H3") {
+          round = parseInt(el.textContent.replace(/[^\d]/g, "")) || 0;
+          pick = 0;
+        } else if (el.tagName === "LI") {
+          pick++;
+          let liTeam = el.getAttribute("data-team");
+          let slot = el.querySelector(".mock-slot");
+          if (slot && slot.innerText.trim()) {
+            if (!team || liTeam === team) {
+              let playerHtml = slot.innerHTML;
+              let tempDiv = document.createElement("div");
+              tempDiv.innerHTML = playerHtml;
+              let playerText = tempDiv.textContent.trim();
+              let rankSpan = tempDiv.querySelector(".mock-player-rank");
+              let rank = rankSpan ? rankSpan.textContent : "";
+              picks.push({
+                round,
+                pick,
+                team: liTeam,
+                player: playerText.replace(/\s+NR$/, '').replace(/\s+\d+$/, '').trim(),
+                rank: rank,
+              });
+            }
+          }
+        }
+      });
+      return picks;
+    }
+
+    function downloadDraftCSV(team = "") {
+      const picks = getDraftedPlayers(team);
+      if (picks.length === 0) {
+        alert("No picks to download for this team.");
+        return;
+      }
+      let header = "Round,Pick,Team,Player,Consolidated Rank\n";
+      let rows = picks.map(p => [
+        p.round, p.pick, p.team, '"' + p.player.replace(/"/g, '""') + '"', p.rank
+      ].join(","));
+      let csv = header + rows.join("\n");
+      let blob = new Blob([csv], {type: "text/csv"});
+      let link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `nhl_draft_${team ? team.replace(/\s/g, "_") : "all"}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function downloadDraftPDF(team = "") {
+      const boardElem = document.getElementById("mockDraftBoardContainer");
+      if (!boardElem) {
+        alert("Draft board not found!");
+        return;
+      }
+      const downloadActions = document.getElementById("downloadActions");
+      downloadActions && downloadActions.classList.add("download-buttons-hidden");
+      html2canvas(boardElem, {
+        backgroundColor: "#fff",
+        scale: 2
+      }).then(canvas => {
+        downloadActions && downloadActions.classList.remove("download-buttons-hidden");
+        const imgData = canvas.toDataURL("image/png");
+        const pdf = new window.jspdf.jsPDF({
+          orientation: "portrait",
+          unit: "pt",
+          format: "a4"
+        });
+        pdf.setFontSize(18);
+        let title = team ? `Draft Board for ${team}` : "Full Mock Draft Board";
+        pdf.text(title, 40, 40);
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        const topMargin = 60;
+        const leftMargin = 40;
+        const maxWidth = pageWidth - leftMargin * 2;
+        const maxHeight = pageHeight - topMargin - 40;
+        let imgWidth = canvas.width;
+        let imgHeight = canvas.height;
+        if (imgWidth > maxWidth || imgHeight > maxHeight) {
+          const widthRatio = maxWidth / imgWidth;
+          const heightRatio = maxHeight / imgHeight;
+          const ratio = Math.min(widthRatio, heightRatio);
+          imgWidth = imgWidth * ratio;
+          imgHeight = imgHeight * ratio;
+        }
+        pdf.addImage(imgData, "PNG", leftMargin, topMargin, imgWidth, imgHeight, undefined, "FAST");
+        pdf.save(`nhl_draft_board_${team ? team.replace(/\s/g, "_") : "all"}.pdf`);
+      }).catch(err => {
+        downloadActions && downloadActions.classList.remove("download-buttons-hidden");
+        alert("Failed to generate screenshot PDF: " + err);
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const oddsTable = document.getElementById("mockOddsTable");
+      odds.forEach((entry, index) => {
+        const logoHtml = teamLogos[entry.team] ? `<img src="${teamLogos[entry.team]}" alt="${entry.team} logo" class="team-logo">` : '';
+        const row = document.createElement("tr");
+        row.innerHTML = `<td>${index + 1}</td><td>${logoHtml}${entry.team}</td><td>${entry.odds}</td>`;
+        oddsTable.appendChild(row);
+      });
+
+      const userTeamSelect = document.getElementById("userTeam");
+      allTeams.forEach(team => {
+        const opt = document.createElement("option");
+        opt.value = team;
+        opt.text = team;
+        userTeamSelect.appendChild(opt);
+      });
+
+      const numRoundsSelect = document.getElementById("numRoundsSelect");
+      numRoundsSelect.addEventListener("change", function() {
+        numRoundsToSim = parseInt(this.value, 10);
+        draftOrder = getDraftOrderObject(numRoundsToSim);
+        renderDraftBoard(document.getElementById("mockDraftBoard"));
+      });
+
+      renderDraftBoard(document.getElementById("mockDraftBoard"));
+
+      Papa.parse("https://docs.google.com/spreadsheets/d/1R3rQOqjOREtFoxtYBY0cbJh7GphF21H-WkISiN8qCnk/export?format=csv&gid=0", {
+        download: true,
+        header: true,
+        complete: function(results) {
+          let ranked = results.data
+            .filter(row => row.Player && row['Consolidated Rank'] && !isNaN(row['Consolidated Rank']))
+            .sort((a, b) => Number(a['Consolidated Rank']) - Number(b['Consolidated Rank']));
+          let unranked = results.data
+            .filter(row => row.Player && (!row['Consolidated Rank'] || isNaN(row['Consolidated Rank'])));
+          consolidatedPlayers = ranked.concat(unranked);
+          shortlistQueue = [];
+          consolidatedPlayers.forEach(p => delete p._drafted);
+          populatePlayerBank();
+          populateShortlistQueue();
+        }
+      });
+
+      document.getElementById("clearShortlist").addEventListener("click", () => {
+        shortlistQueue = [];
+        populateShortlistQueue();
+        populatePlayerBank();
+      });
+
+      document.getElementById("playerSearch").addEventListener("input", function () {
+        const query = this.value.toLowerCase();
+        document.querySelectorAll("#mockPlayerBank li").forEach(li => {
+          li.style.display = li.textContent.toLowerCase().includes(query) ? "" : "none";
+        });
+      });
+
+      document.getElementById("draftMode").addEventListener("change", e => draftMode = e.target.value);
+      document.getElementById("userTeam").addEventListener("change", e => userTeam = e.target.value);
+
+      document.getElementById("startDraft").addEventListener("click", () => {
+        if (!draftStarted) {
+          draftStarted = true;
+          draftComplete = false;
+          showDownloadButtons(false);
+          document.getElementById("bigTimer").style.display = "";
+          setPickTimer();
+          timerInterval = setInterval(() => {
+            updateTimerDisplay();
+            if (draftMode === "single" && userTeam) {
+              const {team} = draftBoardPickTracker[currentPick] || {};
+              if (team && team === userTeam) {
+                updateYourPickUpBox(true, timeLeft);
+              } else {
+                updateYourPickUpBox(false);
+              }
+            } else {
+              updateYourPickUpBox(false);
+            }
+            if (timeLeft-- <= 0) {
+              handleAutoPick();
+              setPickTimer();
+            }
+          }, 1000);
+        }
+      });
+
+      document.getElementById("stopDraft").addEventListener("click", () => {
+        clearInterval(timerInterval);
+        draftStarted = false;
+        updateYourPickUpBox(false);
+      });
+
+      document.getElementById("downloadCSV").addEventListener("click", function() {
+        downloadDraftCSV("");
+      });
+      document.getElementById("downloadPDF").addEventListener("click", function() {
+        downloadDraftPDF("");
+      });
+
+      showDownloadButtons(false);
+      document.getElementById("bigTimer").style.display = "";
+      updateYourPickUpBox(false);
+    });
+    </script>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('mock_nhl_draft', 'smaht_mock_nhl_draft_shortcode');
