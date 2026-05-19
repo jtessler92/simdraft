@@ -368,22 +368,22 @@ function smaht_mock_nhl_draft_shortcode() {
     };
 
     const odds = [
-      { team: "Chicago Blackhawks", odds: "18.5%" },
-      { team: "San Jose Sharks", odds: "13.5%" },
-      { team: "Pittsburgh Penguins", odds: "11.5%" },
-      { team: "Anaheim Ducks", odds: "9.5%" },
-      { team: "Seattle Kraken", odds: "8.5%" },
-      { team: "Buffalo Sabres", odds: "7.5%" },
-      { team: "Boston Bruins", odds: "6.5%" },
-      { team: "Detroit Red Wings", odds: "6.0%" },
-      { team: "Calgary Flames", odds: "5.0%" },
+      { team: "Vancouver Canucks", odds: "18.5%" },
+      { team: "Chicago Blackhawks", odds: "13.5%" },
+      { team: "New York Rangers", odds: "11.5%" },
+      { team: "Calgary Flames", odds: "9.5%" },
+      { team: "Toronto Maple Leafs", odds: "8.5%" },
+      { team: "Seattle Kraken", odds: "7.5%" },
+      { team: "Winnipeg Jets", odds: "6.5%" },
+      { team: "Florida Panthers", odds: "6.0%" },
+      { team: "San Jose Sharks", odds: "5.0%" },
       { team: "Nashville Predators", odds: "3.5%" },
-      { team: "Columbus Blue Jackets", odds: "3.0%" },
-      { team: "Philadelphia Flyers", odds: "2.5%" },
+      { team: "St. Louis Blues", odds: "3.0%" },
+      { team: "New Jersey Devils", odds: "2.5%" },
       { team: "New York Islanders", odds: "2.0%" },
-      { team: "Montreal Canadiens", odds: "1.5%" },
-      { team: "Vancouver Canucks", odds: "0.5%" },
-      { team: "St. Louis Blues", odds: "0.5%" }
+      { team: "Columbus Blue Jackets", odds: "1.5%" },
+      { team: "Detroit Red Wings", odds: "0.5%" },
+      { team: "Washington Capitals", odds: "0.5%" }
     ];
     const allTeams = [
       "Anaheim Ducks","Utah Mammoth","Boston Bruins","Buffalo Sabres","Calgary Flames","Carolina Hurricanes","Chicago Blackhawks","Colorado Avalanche","Columbus Blue Jackets","Dallas Stars","Detroit Red Wings","Edmonton Oilers","Florida Panthers","Los Angeles Kings","Minnesota Wild","Montreal Canadiens","Nashville Predators","New Jersey Devils","New York Islanders","New York Rangers","Ottawa Senators","Philadelphia Flyers","Pittsburgh Penguins","San Jose Sharks","Seattle Kraken","St. Louis Blues","Tampa Bay Lightning","Toronto Maple Leafs","Vancouver Canucks","Vegas Golden Knights","Washington Capitals","Winnipeg Jets"
